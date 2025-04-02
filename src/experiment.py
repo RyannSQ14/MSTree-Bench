@@ -1,19 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 import csv
 import os
-import math
-from mst import Graph, generate_random_graph
+from mst import generate_random_graph
 
 def run_experiments_by_size(logger):
     """Run experiments varying the number of vertices."""
     logger.info("Running experiments with varying graph sizes...")
     
-    # Vertex sizes to test
-    vertex_sizes = [10, 50, 100, 200, 300, 400, 500, 750, 1000]
-    # Run experiments
-    results = run_experiment(vertex_sizes, num_trials=5, density=0.5, logger=logger)
+    # Use larger vertex sizes to better see asymptotic behavior
+    vertex_sizes = [100, 200, 400, 600, 800, 1000, 1500, 2000, 3000, 4000]
+    
+    # Use higher density to emphasize differences
+    results = run_experiment(vertex_sizes, num_trials=3, density=0.7, logger=logger)
     
     # Create reports directory if it doesn't exist
     os.makedirs("reports", exist_ok=True)
@@ -60,8 +59,9 @@ def run_experiments_by_density(logger):
     """Run experiments varying the density of the graph."""
     logger.info("Running experiments with varying graph densities...")
     
-    # Fixed number of vertices
-    n = 500
+    # Increased vertex count to make density effects more apparent
+    n = 1000
+    
     # Densities to test (from sparse to dense)
     densities = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     
@@ -71,7 +71,8 @@ def run_experiments_by_density(logger):
         'prim_time': []
     }
     
-    num_trials = 5
+    # Reduced trials to keep experiment time manageable
+    num_trials = 3
     max_edges = n * (n - 1) // 2
     
     for density in densities:
@@ -118,7 +119,7 @@ def run_experiments_by_density(logger):
     plt.plot(results['densities'], results['prim_time'], 's-', label="Prim's Algorithm")
     plt.xlabel('Graph Density')
     plt.ylabel('Average Execution Time (seconds)')
-    plt.title('MST Algorithm Performance vs Graph Density (n=500)')
+    plt.title(f'MST Algorithm Performance vs Graph Density (n={n})')
     plt.legend()
     plt.grid(True)
     plt.savefig("reports/density_comparison.png", dpi=300, bbox_inches='tight')

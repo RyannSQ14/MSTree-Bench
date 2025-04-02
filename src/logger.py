@@ -2,8 +2,6 @@ import logging
 import os
 import sys
 import platform
-import random
-import time
 from datetime import datetime
 import multiprocessing
 import numpy as np
