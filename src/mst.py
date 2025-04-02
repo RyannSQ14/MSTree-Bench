@@ -206,18 +206,9 @@ class Graph:
         start_time = time.time()
         
         n = self.V
-        m = len(self.edges)
         
-        # Min-heap to store all edges prioritized by weight
-        min_heap = MinHeap()
-        
-        # Convert edges to a suitable format for the heap
-        # Sort by weight first for heap construction
-        # Format: (weight, u, v) - weight first for proper ordering in heap
-        heap_edges = [(w, u, v) for u, v, w in self.edges]
-        
-        # Build the min-heap
-        min_heap.build_heap(heap_edges)
+        # Sort edges by weight directly instead of using MinHeap
+        sorted_edges = sorted(self.edges, key=lambda x: x[2])
         
         # Initialize disjoint set for connected components
         disjoint_set = DisjointSet(n)
@@ -229,10 +220,11 @@ class Graph:
         total_weight = 0
         
         # Process edges in order of increasing weight
-        while len(mst) < n - 1 and min_heap.heap:
-            # Extract the edge with minimum weight
-            weight, u, v = min_heap.extract_min()
-            
+        for u, v, weight in sorted_edges:
+            # Stop if we've found n-1 edges
+            if len(mst) == n - 1:
+                break
+                
             # Check if adding this edge creates a cycle
             if disjoint_set.union(u, v):
                 # Add edge to MST
@@ -256,69 +248,48 @@ class Graph:
         
         n = self.V
         
-        # NEAR[1..n] array - for each vertex, track the nearest vertex in the MST
-        # NEAR[v] = u means vertex u is closest to v among all vertices in the MST
-        # A value of -1 means the vertex is already in the MST
-        near = [-1] * n
-        
-        # Min-heap for vertices prioritized by their distance to the MST
-        min_heap = MinHeap()
+        # Use a more efficient priority queue implementation
+        # Use direct array for key values and standard Python heapq
+        key = [float('inf')] * n
+        parent = [-1] * n
+        in_mst = [False] * n
         
         # Start with vertex 0
-        start_vertex = 0
-        near[start_vertex] = -1  # Mark as in MST
+        key[0] = 0
         
-        # Initialize distances for all other vertices
-        for v in range(n):
-            if v != start_vertex:
-                # Find weight of edge from start_vertex to v
-                weight = float('inf')
-                for neighbor, w in self.graph[start_vertex]:
-                    if neighbor == v:
-                        weight = w
-                        break
-                
-                if weight < float('inf'):
-                    near[v] = start_vertex
-                    min_heap.insert((weight, v))
-                else:
-                    near[v] = -2  # No direct edge
+        # Use a simple heap instead of our custom implementation
+        # Format: (key, vertex)
+        heap = [(0, 0)]  # (weight, vertex)
         
-        # Initialize MST
-        mst = []  # T[1..n-1] in the assignment
+        mst = []
         total_weight = 0
         
-        # Grow the MST
-        while len(mst) < n - 1 and min_heap.heap:
+        while heap:
             # Extract vertex with minimum key
-            min_entry = min_heap.extract_min()
-            if min_entry is None:
-                break
+            k, u = heapq.heappop(heap)
+            
+            # Skip if already processed
+            if in_mst[u]:
+                continue
                 
-            weight, v = min_entry
+            # Mark as processed
+            in_mst[u] = True
             
-            # Add edge to MST
-            u = near[v]
-            if u >= 0:  # Only add if u is a valid vertex
-                mst.append((u, v, weight))
-                total_weight += weight
+            # Add edge to MST if not the first vertex
+            if parent[u] != -1:
+                mst.append((parent[u], u, k))
+                total_weight += k
             
-            # Mark v as in MST
-            near[v] = -1
-            
-            # Update keys of vertices not in MST
-            for neighbor, w in self.graph[v]:
-                if near[neighbor] != -1:  # Not in MST
-                    if near[neighbor] == -2 or w < float('inf'):
-                        # Find the current weight to the MST if it exists
-                        current_weight = float('inf')
-                        if near[neighbor] >= 0:
-                            current_weight = self.weight_matrix[neighbor][near[neighbor]]
-                        
-                        # Update if the new path is better
-                        if w < current_weight:
-                            near[neighbor] = v
-                            min_heap.decrease_key(neighbor, w)
+            # Update keys of adjacent vertices
+            for v, weight in self.graph[u]:
+                # Only process unvisited vertices with better weight
+                if not in_mst[v] and weight < key[v]:
+                    # Update parent and key
+                    parent[v] = u
+                    key[v] = weight
+                    
+                    # Add to heap
+                    heapq.heappush(heap, (weight, v))
         
         end_time = time.time()
         execution_time = end_time - start_time
