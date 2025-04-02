@@ -1,4 +1,4 @@
-# Minimum Spanning Tree Algorithms - Experimental Analysis
+# MSTree-Bench
 
 <div align="center">
 <pre>
@@ -13,11 +13,13 @@
 </pre>
   <br>
   <em>Comparing Kruskal's and Prim's algorithms through experimental analysis</em>
+  <br><br>
+  <a href="https://github.com/msadeqsirjani/MSTree-Bench"><strong>https://github.com/msadeqsirjani/MSTree-Bench</strong></a>
 </div>
 
 <br>
 
-This project implements and analyzes the performance of Kruskal's and Prim's algorithms for finding Minimum Spanning Trees (MST) in graphs.
+A benchmarking toolkit for comparing Kruskal's and Prim's minimum spanning tree algorithms across various graph configurations, with visualization tools and performance analysis reports.
 
 ## Project Structure
 
