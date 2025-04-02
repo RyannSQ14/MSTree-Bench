@@ -1,0 +1,2 @@
+Individual crossover points: [1992, 1992, 1992]
+Average crossover point: 1992.0 vertices
